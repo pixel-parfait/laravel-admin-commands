@@ -1,0 +1,49 @@
+<template>
+  <div>
+    <Head title="##ADD_NEW_LABEL##" />
+
+    <section class="section is-title-bar">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <ul>
+              <li>
+                <Link :href="route('admin.##ROUTE_NAME##.index')"> ##PLURAL_LABEL## </Link>
+              </li>
+              <li>##ADD_NEW_LABEL##</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section is-main-section">
+      <form @submit.prevent="store" novalidate>
+        <##SINGULAR_NAME##-form :form="form" :options="options" />
+      </form>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { useForm } from '@inertiajs/vue3'
+import { useCrud } from '@/composables/crud'
+import ##MODEL_NAME##Form from './Form.vue'
+
+const props = defineProps({
+  options: Object,
+})
+
+const form = useForm(
+  {
+    //
+  },
+  'Create##MODEL_NAME##'
+)
+
+const { store } = useCrud(form, {
+  route: {
+    prefix: 'admin.##ROUTE_NAME##',
+  },
+})
+</script>

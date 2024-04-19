@@ -1,0 +1,164 @@
+<template>
+  <div>
+    <Head title="##PLURAL_LABEL##" />
+
+    <section class="section is-title-bar">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <ul>
+              <li>##PLURAL_LABEL##</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="level-right">
+          <div class="level-item">
+            <Link
+              class="button is-primary"
+              :href="route('admin.##ROUTE_NAME##.create')"
+            >
+              <span class="is-hidden-mobile">##ADD_NEW_LABEL##</span>
+              <span class="is-hidden-tablet">Ajouter</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section is-main-section">
+      <div class="level">
+        <div class="level-left">
+          <search-filter
+            v-model="form.search"
+            :is-filtered="form.search.length > 0"
+            @reset="reset"
+          />
+        </div>
+
+        <div class="level-right">
+          <nav class="buttons are-small">
+            <Link
+              class="button is-light"
+              :class="{ 'is-active': filters.status != 'trashed' }"
+              :href="route('admin.##ROUTE_NAME##.index')"
+            >
+              Publiés ({{ total_published }})
+            </Link>
+
+            <Link
+              class="button is-light"
+              :class="{ 'is-active': filters.status == 'trashed' }"
+              :href="route('admin.##ROUTE_NAME##.index', { status: 'trashed' })"
+            >
+              Corbeille ({{ total_trashed }})
+            </Link>
+          </nav>
+        </div>
+      </div>
+
+      <div class="card has-table">
+        <div class="card-content">
+          <div class="has-pagination">
+            <div class="table-wrapper">
+              <table class="is-fullwidth is-sortable is-hoverable table">
+                <thead>
+                  <tr>
+                    <th width="50">#</th>
+                    <th>Titre</th>
+                    <th width="80"></th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr
+                    v-for="##SINGULAR_NAME## in ##ROUTE_NAME##.data"
+                    :key="##SINGULAR_NAME##.id"
+                    class="is-selectable"
+                  >
+                    <td>
+                      <Link
+                        :href="
+                          route('admin.##ROUTE_NAME##.edit', { ##SINGULAR_NAME##: ##SINGULAR_NAME## })
+                        "
+                      >
+                        {{ ##SINGULAR_NAME##.id }}
+                      </Link>
+                    </td>
+                    <td>
+                      <Link
+                        :href="
+                          route('admin.##ROUTE_NAME##.edit', { ##SINGULAR_NAME##: ##SINGULAR_NAME## })
+                        "
+                      >
+                        {{ ##SINGULAR_NAME##.title }}
+                      </Link>
+                    </td>
+                    <td class="is-actions-cell">
+                      <Link
+                        :href="
+                          route('admin.##ROUTE_NAME##.edit', { ##SINGULAR_NAME##: ##SINGULAR_NAME## })
+                        "
+                      >
+                        <span class="icon is-small">
+                          <ChevronRightIcon />
+                        </span>
+                      </Link>
+                    </td>
+                  </tr>
+                  <tr v-if="##ROUTE_NAME##.data.length === 0">
+                    <td colspan="6">
+                      <template v-if="filters.status === 'trashed'">
+                        Aucun élément dans la corbeille.
+                      </template>
+                      <template v-else> Aucun élément. </template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <pagination :links="##ROUTE_NAME##.links" />
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { watch, ref } from 'vue'
+import { router } from '@inertiajs/vue3'
+import pickBy from 'lodash/pickBy'
+import throttle from 'lodash/throttle'
+import Pagination from '@/Components/Pagination.vue'
+import SearchFilter from '@/Components/SearchFilter.vue'
+import { ChevronRightIcon } from '@heroicons/vue/24/outline'
+
+const props = defineProps({
+  filters: Object,
+  ##ROUTE_NAME##: Object,
+  total_published: Number,
+  total_trashed: Number,
+})
+
+const form = ref({
+  search: props.filters.search || '',
+})
+
+const reset = () => {
+  form.value.search = ''
+}
+
+watch(
+  form,
+  throttle(() => {
+    router.get('/admin/##ROUTE_NAME##', pickBy(form.value), {
+      preserveState: true,
+    })
+  }, 150),
+  {
+    deep: true,
+  }
+)
+</script>

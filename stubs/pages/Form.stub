@@ -1,0 +1,57 @@
+<template>
+  <div>
+    <div class="columns">
+      <div class="column is-8">
+        <div class="card">
+          <div class="card-content">
+            <text-input
+              v-model="form.title"
+              :error="form.errors.title"
+              label="Titre"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="is-sticky">
+          <div class="card">
+            <div class="card-content">
+              <button
+                :disabled="form.processing"
+                class="button is-primary is-fullwidth"
+                :class="{ 'is-loading': form.processing }"
+              >
+                <slot title="submit">Enregistrer</slot>
+              </button>
+            </div>
+          </div>
+
+          <p
+            class="is-size-7 has-text-grey-light has-text-centered"
+            v-if="updatedAt"
+          >
+            Dernière modification le {{ $filters.formatDateTime(updatedAt) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { inject } from 'vue'
+import TextInput from '@/Components/Forms/TextInput.vue'
+
+defineProps({
+  form: Object,
+  options: Object,
+  updatedAt: {
+    type: String,
+    default: null,
+  },
+})
+
+const $filters = inject('$filters')
+</script>
