@@ -35,26 +35,6 @@
             @reset="reset"
           />
         </div>
-
-        <div class="level-right">
-          <nav class="buttons are-small">
-            <Link
-              class="button is-light"
-              :class="{ 'is-active': filters.status != 'trashed' }"
-              :href="route('admin.##ROUTE_NAME##.index')"
-            >
-              Publiés ({{ total_published }})
-            </Link>
-
-            <Link
-              class="button is-light"
-              :class="{ 'is-active': filters.status == 'trashed' }"
-              :href="route('admin.##ROUTE_NAME##.index', { status: 'trashed' })"
-            >
-              Corbeille ({{ total_trashed }})
-            </Link>
-          </nav>
-        </div>
       </div>
 
       <div class="card has-table">
@@ -108,10 +88,7 @@
                   </tr>
                   <tr v-if="##ROUTE_NAME##.data.length === 0">
                     <td colspan="3">
-                      <template v-if="filters.status === 'trashed'">
-                        Aucun élément dans la corbeille.
-                      </template>
-                      <template v-else> Aucun élément. </template>
+                      Aucun élément.
                     </td>
                   </tr>
                 </tbody>
@@ -138,8 +115,6 @@ import { ChevronRightIcon } from '@heroicons/vue/24/outline'
 const props = defineProps({
   filters: Object,
   ##ROUTE_NAME##: Object,
-  total_published: Number,
-  total_trashed: Number,
 })
 
 const form = ref({

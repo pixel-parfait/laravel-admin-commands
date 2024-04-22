@@ -19,6 +19,7 @@
           <div class="level-item">
             <div class="buttons">
               <button
+                v-if="!##SINGULAR_NAME##.deleted_at"
                 class="button is-danger"
                 tabindex="-1"
                 type="button"
@@ -33,6 +34,15 @@
     </section>
 
     <section class="section is-main-section">
+      <trashed-message
+        v-if="##SINGULAR_NAME##.deleted_at"
+        class="mb-6"
+        @restore="restore"
+        @forceDelete="forceDelete"
+      >
+        ##THIS_LABEL## est dans la corbeille.
+      </trashed-message>
+
       <form class="block" @submit.prevent="update" novalidate>
         <##SINGULAR_NAME##-form
           :key="##SINGULAR_NAME##.id"
@@ -50,6 +60,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3'
 import { useCrud } from '@/composables/crud'
+import TrashedMessage from '@/Components/TrashedMessage.vue'
 import ##SINGULAR_NAME##Form from './Form.vue'
 
 const props = defineProps({
@@ -59,13 +70,15 @@ const props = defineProps({
 ##SINGULAR_NAME##
 const form = useForm(`Edit##SINGULAR_NAME##-${props.##SINGULAR_NAME##.id}`, props.##SINGULAR_NAME##)
 
-const { update, destroy } = useCrud(form, {
+const { update, destroy, restore, forceDelete } = useCrud(form, {
   route: {
     prefix: 'admin.##ROUTE_NAME##',
     params: { ##SINGULAR_NAME##: props.##SINGULAR_NAME## },
   },
   messages: {
-    destroy:
+    destroy: 'Voulez-vous vraiment mettre ##THIS_LABEL## à la corbeille ?',
+    restore: 'Voulez-vous vraiment restaurer ##THIS_LABEL## ?',
+    forceDelete:
       'Voulez-vous vraiment supprimer définitivement ##THIS_LABEL## ? Cette action est irréversible.',
   },
 })

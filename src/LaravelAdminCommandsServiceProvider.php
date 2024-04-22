@@ -3,7 +3,7 @@
 namespace PixelParfait\LaravelAdminCommands;
 
 use Illuminate\Support\ServiceProvider;
-use PixelParfait\LaravelAdminCommands\Commands\CreateResource;
+use PixelParfait\LaravelAdminCommands\Commands\CreatePages;
 
 class LaravelAdminCommandsServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,7 @@ class LaravelAdminCommandsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                CreateResource::class,
+                CreatePages::class,
             ]);
         }
     }

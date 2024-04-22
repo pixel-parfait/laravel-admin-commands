@@ -2,13 +2,14 @@
 
 namespace PixelParfait\LaravelAdminCommands\Commands;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-
+use Illuminate\Support\Str;
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 use PixelParfait\LaravelAdminCommands\Commands\Traits\InteractsWithStubs;
 
-class CreateResource extends Command
+class CreatePages extends Command
 {
     use InteractsWithStubs;
 
@@ -17,14 +18,14 @@ class CreateResource extends Command
      *
      * @var string
      */
-    protected $signature = 'admin:create-resource {name?}';
+    protected $signature = 'admin:create-pages {name?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create view for the resource';
+    protected $description = 'Create views for the resource';
 
     /**
      * Execute the console command.
@@ -32,7 +33,7 @@ class CreateResource extends Command
     public function handle()
     {
         $model = (string) str($this->argument('name') ?? text(
-            label: 'Name of the model',
+            label: 'Nom du modèle',
             placeholder: 'Post',
             required: true,
         ))
@@ -45,32 +46,48 @@ class CreateResource extends Command
         $pluralName = Str::plural($model);
 
         $pluralLabel = text(
-            label: 'Plural name',
-            default: Str::plural($model),
-            required: true,
-        );
+            label: 'Libellé au pluriel',
+            placeholder: Str::plural($model),
+        ) ?: Str::plural($model);
 
         $singularLabel = text(
-            label: 'Singular name',
-            default: Str::singular($pluralLabel),
-            required: true,
+            label: 'Libellé au singulier',
+            placeholder: Str::singular($pluralLabel),
+        ) ?: Str::singular($pluralLabel);
+
+        $genre = select(
+            label: 'Genre',
+            options: ['Masculin', 'Féminin'],
+            default: 'Masculin',
         );
+
+        $defaultNewLabel = ($genre == 'Masculin' ? 'Nouveau' : 'Nouvelle').' '.mb_strtolower($singularLabel);
+        $defaultThisLabel = ($genre == 'Masculin' ? 'Ce' : 'Cette').' '.mb_strtolower($singularLabel);
 
         $newLabel = text(
-            label: '"Add new" label',
-            default: 'New '.mb_strtolower($model),
-            required: true,
-        );
+            label: 'Libellé de "Nouveau modèle"',
+            placeholder: $defaultNewLabel,
+        ) ?: $defaultNewLabel;
 
         $thisLabel = text(
-            label: '"This model" label',
-            default: 'This '.mb_strtolower($model),
-            required: true,
+            label: 'Libellé de "Ce modèle"',
+            placeholder: $defaultThisLabel,
+        ) ?: $defaultThisLabel;
+
+        $hasSoftDeletes = confirm(
+            label: 'Le modèle implémente-t-il SoftDeletes ?',
+            yes: 'Oui',
+            no: 'Non',
+            default: false
         );
 
-        // @TODO: ask if the model has soft deletes
+        if ($hasSoftDeletes) {
+            $path = 'pages/soft-deletes';
+        } else {
+            $path = 'pages';
+        }
 
-        $this->copyStubToApp('pages/Index', base_path("resources/js/Admin/Pages/{$pluralName}/Index.vue"), [
+        $this->copyStubToApp("{$path}/Index", base_path("resources/js/Admin/Pages/{$pluralName}/Index.vue"), [
             'ADD_NEW_LABEL' => $newLabel,
             'ROUTE_NAME' => strtolower($pluralName),
             'PLURAL_LABEL' => $pluralLabel,
@@ -86,7 +103,7 @@ class CreateResource extends Command
             'MODEL_NAME' => $model,
         ]);
 
-        $this->copyStubToApp('pages/Edit', base_path("resources/js/Admin/Pages/{$pluralName}/Edit.vue"), [
+        $this->copyStubToApp("{$path}/Edit", base_path("resources/js/Admin/Pages/{$pluralName}/Edit.vue"), [
             'ROUTE_NAME' => strtolower($pluralName),
             'PLURAL_LABEL' => $pluralLabel,
             'SINGULAR_LABEL' => mb_strtolower($singularLabel),
