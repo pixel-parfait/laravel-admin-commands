@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Requests\##MODEL_NAME##\Store##MODEL_NAME##Request;
+use App\Http\Requests\##MODEL_NAME##\Update##MODEL_NAME##Request;
+use App\Models\##MODEL_NAME##;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class ##MODEL_NAME##Controller extends Controller
+{
+    use AuthorizesRequests;
+
+    /**
+     * @var array
+     */
+    private $formOptions = [];
+
+    public function __construct()
+    {
+        $this->authorizeResource(##MODEL_NAME##::class, '##SINGULAR_RESOURCE_NAME##');
+
+        $this->formOptions = [
+            //
+        ];
+    }
+
+    /**
+     * Display a listing of the ##PLURAL_RESOURCE_NAME##.
+     */
+    public function index(Request $request): Response
+    {
+        if ($request->search) {
+            $##PLURAL_RESOURCE_NAME##Query->where('title', 'like', "%{$request->search}%");
+        }
+
+        $##PLURAL_RESOURCE_NAME## = $##PLURAL_RESOURCE_NAME##Query
+            ->paginate(25)
+            ->onEachSide(2)
+            ->withQueryString()
+            ->through(fn ($##SINGULAR_RESOURCE_NAME##) => [
+                'id' => $##SINGULAR_RESOURCE_NAME##->id,
+                'title' => $##SINGULAR_RESOURCE_NAME##->title,
+            ]);
+
+        return Inertia::render('##PAGES_DIRECTORY##/Index', [
+            'filters' => $request->all('search'),
+            '##PLURAL_RESOURCE_NAME##' => $##PLURAL_RESOURCE_NAME##,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new ##SINGULAR_RESOURCE_NAME##.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('##PAGES_DIRECTORY##/Create', [
+            'options' => $this->formOptions,
+        ]);
+    }
+
+    /**
+     * Store a newly created ##SINGULAR_RESOURCE_NAME## in storage.
+     */
+    public function store(Store##MODEL_NAME##Request $request): RedirectResponse
+    {
+        $data = $this->getData($request);
+
+        ##MODEL_NAME##::create($data);
+
+        return redirect()->route('admin.##PLURAL_RESOURCE_NAME##.index')->with('success', '##CREATED_MESSAGE##');
+    }
+
+    /**
+     * Show the form for editing the specified ##SINGULAR_RESOURCE_NAME##.
+     */
+    public function edit(##MODEL_NAME## $##SINGULAR_RESOURCE_NAME##): Response
+    {
+        return Inertia::render('##PAGES_DIRECTORY##/Edit', [
+            '##SINGULAR_RESOURCE_NAME##' => [
+                'id' => $##SINGULAR_RESOURCE_NAME##->id,
+                'title' => $##SINGULAR_RESOURCE_NAME##->title,
+                'updated_at' => $##SINGULAR_RESOURCE_NAME##->updated_at,
+            ],
+            'options' => $this->formOptions,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Update##MODEL_NAME##Request $request, ##MODEL_NAME## $##SINGULAR_RESOURCE_NAME##): RedirectResponse
+    {
+        $##SINGULAR_RESOURCE_NAME##->update($this->getData($request));
+
+        return redirect()->back()->with('success', '##UPDATED_MESSAGE##');
+    }
+
+    /**
+     * Remove the specified ##SINGULAR_RESOURCE_NAME## from storage.
+     */
+    public function destroy(##MODEL_NAME## $##SINGULAR_RESOURCE_NAME##): RedirectResponse
+    {
+        $##SINGULAR_RESOURCE_NAME##->delete();
+
+        return redirect()
+            ->route('admin.##PLURAL_RESOURCE_NAME##.index')
+            ->with('success', '##DELETED_MESSAGE##');
+    }
+
+    /**
+     * Retrieve the formatted form data from request.
+     */
+    private function getData(mixed $request): array
+    {
+        return [
+            'title' => $request->title,
+        ];
+    }
+}

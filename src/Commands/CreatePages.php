@@ -18,21 +18,21 @@ class CreatePages extends Command
      *
      * @var string
      */
-    protected $signature = 'admin:create-pages {name?}';
+    protected $signature = 'admin:pages {model?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create views for the resource';
+    protected $description = 'Create Vue pages for the resource';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $model = (string) str($this->argument('name') ?? text(
+        $model = (string) str($this->argument('model') ?? text(
             label: 'Nom du modèle',
             placeholder: 'Post',
             required: true,
@@ -43,7 +43,10 @@ class CreatePages extends Command
             ->trim(' ')
             ->replace('/', '\\');
 
-        $pluralName = Str::plural($model);
+        $pluralName = text(
+            label: 'Nom du répertoire',
+            default: Str::plural($model),
+        );
 
         $pluralLabel = text(
             label: 'Libellé au pluriel',
