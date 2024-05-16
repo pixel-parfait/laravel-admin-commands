@@ -56,7 +56,7 @@ const props = defineProps({
   ##SINGULAR_NAME##: Object,
   options: Object,
 })
-##SINGULAR_NAME##
+
 const form = useForm(`Edit##SINGULAR_NAME##-${props.##SINGULAR_NAME##.id}`, props.##SINGULAR_NAME##)
 
 const { update, destroy } = useCrud(form, {
